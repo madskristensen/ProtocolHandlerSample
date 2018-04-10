@@ -16,19 +16,19 @@ namespace ProtocolHandlerSample
     {
         private const string _cliSwitch = "MySwitch";
 
-protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-{
-    await JoinableTaskFactory.SwitchToMainThreadAsync();
+        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
 
-    var cmdline = await GetServiceAsync(typeof(SVsAppCommandLine)) as IVsAppCommandLine;
+            var cmdline = await GetServiceAsync(typeof(SVsAppCommandLine)) as IVsAppCommandLine;
 
-    ErrorHandler.ThrowOnFailure(cmdline.GetOption(_cliSwitch, out int isPresent, out string optionValue));
+            ErrorHandler.ThrowOnFailure(cmdline.GetOption(_cliSwitch, out int isPresent, out string optionValue));
 
-    if (isPresent == 1)
-    {
-        // If opened from a URL, then "optionValue" is the URL string itself
-        System.Windows.Forms.MessageBox.Show(optionValue);
-    }
-}
+            if (isPresent == 1)
+            {
+                // If opened from a URL, then "optionValue" is the URL string itself
+                System.Windows.Forms.MessageBox.Show(optionValue);
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@
 
 **Applies to Visual Studio 2017.6 and newer**
 
-This sample shows how to associate a URI protocol with Visual Studio and handle the passed in URI. For instance, a link with a custom protocol (*such as <vsph://anything/I/want>*) will open Visual Studio and pass the URI to the extension.
+This sample shows how to associate a URI protocol with Visual Studio and handle the passed in URI. For instance, a link with a custom protocol (*such as <a href="vsph://anything/I/want">vsph://anything/I/want</a>*) will open Visual Studio and pass the URI to the extension.
 
 ## Register the protocol
 The first thing we should do is to specify the protocol in our extension to let the Visual Studio extension installer register it with Windows. We do that by adding a .json file to our extension and set its Build Action property to *ContentManifest*.
@@ -62,7 +62,7 @@ protected override async Task InitializeAsync(CancellationToken cancellationToke
 
     var cmdline = await GetServiceAsync(typeof(SVsAppCommandLine)) as IVsAppCommandLine;
 
-    ErrorHandler.ThrowOnFailure(cmdline.GetOption(_cliSwitch, out int isPresent, out string optionValue));
+    ErrorHandler.ThrowOnFailure(cmdline.GetOption("MySwitch", out int isPresent, out string optionValue));
 
     if (isPresent == 1)
     {
@@ -74,7 +74,7 @@ protected override async Task InitializeAsync(CancellationToken cancellationToke
 
 See the full sample [package class](src/ProtocolPackage.cs).
 
-And that's it. We now have an extension that can take action on custom protocol URIs. To test it out, [install this sample extension](http://vsixgallery.com/extension/88018116-8e87-4113-a1c0-db510a2aace0/) and then click [this link](vsph://this/is/a/test/).
+And that's it. We now have an extension that can take action on custom protocol URIs. To test it out, [install this sample extension](http://vsixgallery.com/extension/88018116-8e87-4113-a1c0-db510a2aace0/) and then click <a href="vsph://anything/I/want">this link</a>.
 
 ## Further reading
 
