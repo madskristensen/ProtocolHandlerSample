@@ -6,6 +6,15 @@
 
 This sample shows how to associate a URI protocol with Visual Studio and handle the passed in URI. For instance, a link with a custom protocol (*such as vsph://anything/I/want*) will open Visual Studio and pass the URI to the extension.
 
+## Specify minimum supported version
+Since protocol handler support is new in Visual Studio 2017 Update 6, we need to specify that our extension requires that version or newer. We do that in the .vsixmanifest file like so:
+
+```xml
+<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0.27413, 16.0)" />
+```
+
+See the full sample [.vsixmanifest file](src/source.extension.vsixmanifest).
+
 ## Register the protocol
 The first thing we should do is to specify the protocol in our extension to let the Visual Studio extension installer register it with Windows. We do that by adding a .json file to our extension and set its Build Action property to *ContentManifest*.
 
