@@ -1,10 +1,81 @@
-# Protocol handler sample extension
+# Protocol handler sample
 
 [![Build status](https://ci.appveyor.com/api/projects/status/qq6vg6wi2ixshcr2?svg=true)](https://ci.appveyor.com/project/madskristensen/protocolhandlersample)
 
-This is a sample project that demonstrates how to create protocol handlers for Visual Studio 2017 Update 6. It registers the *vsph* protocol handler with Windows so URLs like <vsph://anything/I/want> is being opened and handled by the Visual Studio extension.
+**Applies to Visual Studio 2017.6 and newer**
 
-The project demonstrates the following concepts:
+This sample shows how to associate a URI protocol with Visual Studio and handle the passed in URI. For instance, a link with a custom protocol (*such as <vsph://anything/I/want>*) will open Visual Studio and pass the URI to the extension.
 
- - Provide custom command line switch to devenv.exe
- - URL protocol handler
+## Register the protocol
+The first thing we should do is to specify the protocol in our extension to let the Visual Studio extension installer register it with Windows. We do that by adding a .json file to our extension and set its Build Action property to *ContentManifest*.
+
+![Property Grid](art/property-grid.png)
+
+The content of the .json file should look like this. Replace any instance of *vsph* with your own protocol name.
+
+```json
+{
+  "$schema": "http://json.schemastore.org/vsix-manifestinjection",
+  "urlAssociations": [
+    {
+      "protocol": "vsph",
+      "displayName": "Visual Studio Protocol Handler Sample",
+      "progId": "VisualStudio.vsph.[InstanceId]",
+      "defaultProgramRegistrationPath": "Software\\Microsoft\\VisualStudio_[InstanceId]\\Capabilities"
+    }
+  ],
+  "progIds": [
+    {
+      "id": "VisualStudio.vsph.[InstanceId]",
+      "displayName": "Visual Studio Protocol Handler Sample",
+      "path": "[InstallDir]\\Common7\\IDE\\devenv.exe",
+      "arguments": "/MySwitch",
+      "defaultIconPath": "[InstallDir]\\Common7\\IDE\\devenv.exe"
+    }
+  ]
+}
+```
+
+Notice that the *#/progIds/arguments* property is set to **/MySwitch**. This means that Visual Studio will be started with a that command line argument and the URL will be added to that like so: `devenv.exe /MySwitch vsph://anything/I/want`
+
+> Please note that for this to work, the extension must be a per-machine extension. Set this in the .vsixmanifest by specifying `<Installation AllUsers="true">`.
+
+## Intercept the URI
+Now we need our package class to load automatically when Visual Studio was started by the protocol handler. We do that by adding an attribute to the Package/AsyncPackage class:
+
+```c#
+[ProvideAppCommandLine("MySwitch", typeof(ProtocolPackage), Arguments = "1", DemandLoad = 1)]
+public sealed class ProtocolPackage : AsyncPackage
+{
+    ...
+}
+```
+
+With the `ProvideAppCommandLine` attribute in place, the package is automatically initialized when the `/MySwitch` command line argument was passed to `devenv.exe`.
+
+We can then access the URI from the Package.InitializeAsync method:
+
+```c#
+protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+{
+    await JoinableTaskFactory.SwitchToMainThreadAsync();
+
+    var cmdline = await GetServiceAsync(typeof(SVsAppCommandLine)) as IVsAppCommandLine;
+
+    ErrorHandler.ThrowOnFailure(cmdline.GetOption(_cliSwitch, out int isPresent, out string optionValue));
+
+    if (isPresent == 1)
+    {
+        // If opened from a URL, then "optionValue" is the URL string itself
+        System.Windows.Forms.MessageBox.Show(optionValue);
+    }
+}
+```
+
+See the full sample [package class](src/ProtocolPackage.cs).
+
+And that's it. We now have an extension that can take action on custom protocol URIs. To test it out, [install this sample extension](http://vsixgallery.com/extension/88018116-8e87-4113-a1c0-db510a2aace0/) and then click [this link](vsph://this/is/a/test/).
+
+## Further reading
+
+ - [Adding command line switches](https://docs.microsoft.com/en-us/visualstudio/extensibility/adding-command-line-switches)
