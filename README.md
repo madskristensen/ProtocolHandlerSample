@@ -13,6 +13,8 @@ Since protocol handler support is new in Visual Studio 2017 Update 6, we need to
 <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0.27413, 16.0)" />
 ```
 
+*15.0.27413* is the full version string of Visual Studio 2017 Update 6.
+
 See the full sample [.vsixmanifest file](src/source.extension.vsixmanifest).
 
 ## Register the protocol
@@ -87,4 +89,5 @@ And that's it. We now have an extension that can take action on custom protocol 
 
 ## Further reading
 
- - [Adding command line switches](https://docs.microsoft.com/en-us/visualstudio/extensibility/adding-command-line-switches)
+- [Adding command line switches](https://docs.microsoft.com/en-us/visualstudio/extensibility/adding-command-line-switches)
+- [VS 2017 version numbers and release dates](https://docs.microsoft.com/en-us/visualstudio/install/visual-studio-build-numbers-and-release-dates)
